@@ -1,0 +1,60 @@
+{
+    "intents": [
+        {
+            "tag": "greeting",
+            "patterns": [
+                "hi",
+                "hello",
+                "hey",
+                "good morning",
+                "good afternoon",
+                "good evening",
+                "what's up",
+                "yo",
+                "hi tibby",
+                "hello tibby",
+                "greetings",
+                "sup",
+                "kamusta",
+                "kumusta",
+                "musta",
+                "musta tibby",
+                "kamusta ka",
+                "magandang umaga",
+                "magandang hapon",
+                "magandang gabi",
+                "helo",
+                "helo tibby",
+                "hii",
+                "helloo",
+                "heey",
+                "oy",
+                "hoy",
+                "psst",
+                "hi there",
+                "hello there",
+                "wassup",
+                "what's good",
+                "howdy",
+                "hiya"
+            ],
+            "responses": {
+                "english": [
+                    "👋 Hello, Gentinian! I am Tibby, GTDLNHS' cutest chatbot. How may I help you today?",
+                    "👋 Hi there! I'm Tibby, your friendly GTDLNHS chatbot assistant. What can I do for you?",
+                    "👋 Hey! Tibby here, ready to help with anything GTDLNHS-related. What's on your mind?"
+                ],
+                "tagalog": [
+                    "👋 Kamusta, Gentinian! Ako si Tibby, ang pinaka-cute na chatbot ng GTDLNHS. Paano kita matutulungan ngayon?",
+                    "👋 Kumusta! Ako si Tibby, ang iyong friendly GTDLNHS chatbot assistant. Ano ang maitutulong ko?",
+                    "👋 Hey! Si Tibby ito, handa tumulong sa kahit ano tungkol sa GTDLNHS. Ano'ng kailangan mo?"
+                ],
+                "taglish": [
+                    "👋 Hello, Gentinian! Ako si Tibby, GTDLNHS' cutest chatbot. How can I help you today?",
+                    "👋 Hi there! I'm Tibby, your friendly GTDLNHS chatbot. Ano ang maitutulong ko sa'yo?",
+                    "👋 Kamusta! Tibby here, ready to help with anything about GTDLNHS. What's on your mind?"
+                ]
+            }
+        }
+    ]
+}
