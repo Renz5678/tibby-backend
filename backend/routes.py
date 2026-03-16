@@ -25,7 +25,34 @@ bp = Blueprint("tibby", __name__)
 # ==============================
 @bp.route("/", methods=["GET"])
 def home():
-    """API status endpoint."""
+    """
+    API root — returns basic status information.
+    ---
+    tags:
+      - General
+    summary: API status check
+    description: Returns the current API version, status, and number of intents loaded.
+    produces:
+      - application/json
+    responses:
+      200:
+        description: API is running normally
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: "Tibby API is running"
+            version:
+              type: string
+              example: "2.0.0 (Intent-Only)"
+            status:
+              type: string
+              example: "healthy"
+            intents_loaded:
+              type: integer
+              example: 42
+    """
     return jsonify({
         "message": "Tibby API is running",
         "version": "2.0.0 (Intent-Only)",
@@ -40,10 +67,83 @@ def home():
 @bp.route("/chat", methods=["POST"])
 def chat():
     """
-    Handle chat requests.
-
-    Expected JSON body : {"message": "your question here"}
-    Response JSON      : {"reply": "...", "confidence": 0.95, "cached": false}
+    Send a message to Tibby and receive a chatbot response.
+    ---
+    tags:
+      - Chat
+    summary: Chat with Tibby
+    description: >
+      Accepts a user message and returns a matched intent reply.
+      Responses are cached for 30 minutes. The endpoint is rate-limited
+      to 10 requests per minute per IP address.
+    consumes:
+      - application/json
+    produces:
+      - application/json
+    parameters:
+      - in: body
+        name: body
+        required: true
+        description: The user's chat message
+        schema:
+          type: object
+          required:
+            - message
+          properties:
+            message:
+              type: string
+              minLength: 1
+              maxLength: 500
+              example: "What are the enrollment requirements?"
+    responses:
+      200:
+        description: Successful chatbot reply
+        schema:
+          type: object
+          properties:
+            reply:
+              type: string
+              example: "🐾 Enrollment at GTDLNHS requires... Let me know if you have more questions!"
+            confidence:
+              type: number
+              format: float
+              example: 0.92
+            cached:
+              type: boolean
+              example: false
+      400:
+        description: Bad request — missing or invalid message
+        schema:
+          type: object
+          properties:
+            reply:
+              type: string
+              example: "⚠️ Please provide a message in JSON format with a 'message' key."
+            confidence:
+              type: number
+              example: 0.0
+      429:
+        description: Rate limit exceeded
+        schema:
+          type: object
+          properties:
+            reply:
+              type: string
+              example: "⚠️ Too many requests. Please wait a moment before trying again."
+            confidence:
+              type: number
+              example: 0.0
+      500:
+        description: Internal server error
+        schema:
+          type: object
+          properties:
+            reply:
+              type: string
+              example: "⚠️ Oops! Something went wrong on my end. Please try again!"
+            confidence:
+              type: number
+              example: 0.0
     """
     try:
         user_ip = request.remote_addr or "unknown"
@@ -111,7 +211,41 @@ def chat():
 # ==============================
 @bp.route("/health", methods=["GET"])
 def health():
-    """Health check with basic performance metrics."""
+    """
+    Health check with basic performance metrics.
+    ---
+    tags:
+      - Health & Monitoring
+    summary: Server health check
+    description: Returns server health status along with cache sizes and total pattern count.
+    produces:
+      - application/json
+    responses:
+      200:
+        description: Server is healthy
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              example: "healthy"
+            intents_loaded:
+              type: integer
+              example: 42
+            response_cache_size:
+              type: integer
+              example: 17
+            intent_cache_size:
+              type: integer
+              example: 5
+            total_patterns:
+              type: integer
+              example: 320
+            timestamp:
+              type: string
+              format: date-time
+              example: "2025-01-01T12:00:00.000000"
+    """
     return jsonify({
         "status": "healthy",
         "intents_loaded": len(intents_data.get("intents", [])),
@@ -129,7 +263,37 @@ def health():
 # ==============================
 @bp.route("/cache/clear", methods=["POST"])
 def clear_cache():
-    """Admin endpoint — clears both response and intent caches."""
+    """
+    Clear all server-side caches (admin operation).
+    ---
+    tags:
+      - Admin
+    summary: Clear all caches
+    description: >
+      Flushes both the response cache and the intent matching cache.
+      Use this after updating intents.json or to free up memory.
+    produces:
+      - application/json
+    responses:
+      200:
+        description: All caches cleared successfully
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: "All caches cleared successfully"
+            response_cache:
+              type: string
+              example: "cleared"
+            intent_cache:
+              type: string
+              example: "cleared"
+            timestamp:
+              type: string
+              format: date-time
+              example: "2025-01-01T12:00:00.000000"
+    """
     response_cache.clear()
     clear_intent_cache()
     return jsonify({
@@ -145,7 +309,53 @@ def clear_cache():
 # ==============================
 @bp.route("/stats", methods=["GET"])
 def stats():
-    """Chatbot statistics overview."""
+    """
+    Chatbot statistics overview.
+    ---
+    tags:
+      - Health & Monitoring
+    summary: Chatbot performance statistics
+    description: >
+      Returns counts of intents, patterns, and current cache usage,
+      along with configured thresholds and rate-limit settings.
+    produces:
+      - application/json
+    responses:
+      200:
+        description: Statistics retrieved successfully
+        schema:
+          type: object
+          properties:
+            intents:
+              type: integer
+              example: 42
+            total_patterns:
+              type: integer
+              example: 320
+            avg_patterns_per_intent:
+              type: number
+              format: float
+              example: 7.62
+            response_cache_size:
+              type: integer
+              example: 17
+            intent_cache_size:
+              type: integer
+              example: 5
+            cache_max_size:
+              type: integer
+              example: 200
+            cache_ttl_seconds:
+              type: integer
+              example: 1800
+            confidence_threshold:
+              type: number
+              format: float
+              example: 0.7
+            rate_limit:
+              type: string
+              example: "10 req/min"
+    """
     from config import (
         CACHE_MAX_SIZE, CACHE_TTL, CONFIDENCE_THRESHOLD, RATE_LIMIT_REQUESTS
     )

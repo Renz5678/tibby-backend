@@ -1,0 +1,26 @@
+name: Keep Tibby Backend Alive
+
+on:
+  schedule:
+    # Runs every 10 minutes (GitHub Actions min interval is 5 min)
+    - cron: "*/10 * * * *"
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  ping:
+    name: Ping Render Server
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping /health endpoint
+        run: |
+          echo "🐾 Pinging Tibby backend to keep it warm..."
+          RESPONSE=$(curl --silent --max-time 30 --write-out "\nHTTP_STATUS:%{http_code}" https://tibby-backend.onrender.com/health)
+          HTTP_STATUS=$(echo "$RESPONSE" | grep "HTTP_STATUS" | cut -d: -f2)
+          BODY=$(echo "$RESPONSE" | grep -v "HTTP_STATUS")
+          echo "Response body: $BODY"
+          echo "HTTP status:   $HTTP_STATUS"
+          if [ "$HTTP_STATUS" -ne 200 ]; then
+            echo "❌ Server returned non-200 status: $HTTP_STATUS"
+            exit 1
+          fi
+          echo "✅ Server is alive!"
