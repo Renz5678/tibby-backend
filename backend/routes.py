@@ -193,7 +193,6 @@ def chat():
             "• School facilities and location\n"
             "• Schedules and programs\n"
             "• Clubs and organizations\n"
-            "• School policies\n\n"
             "What would you like to know about GTDLNHS?"
         )
         return jsonify({"reply": fallback, "confidence": 0.0}), 200
